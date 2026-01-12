@@ -35,6 +35,53 @@ public class Player : MonoBehaviour
     {
         ApplyGravity();
         Move();
+
+        // 回転処理
+        if (Input.GetMouseButtonDown(0))
+            RotateToMouseCursor();
+
+    }
+
+    private void RotateToMouseCursor()
+    {
+        // マウス位置からRayを作成
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            // 座標取得 (A: Player B: クリック地点)
+            Vector3 posA = transform.position;
+            Vector3 posB = hit.point;
+
+            // ベクトルの引き算
+            Vector3 direction = posB - posA;
+            direction.y = 0; // 一旦縦方向は考慮せず、地面と水平な回転を考慮
+
+            if (direction != Vector3.zero)
+            {
+                // 3. 現在の角度と、目標の角度を取得
+                //float currentYAngle = transform.eulerAngles.y; // クォータニオンの値を89.5°など、Euler角として出す
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                //float targetYAngle = targetRotation.eulerAngles.y;
+
+                // 4. 数式と結果をログに出力
+//                Debug.Log($@"--- 3D Rotation Math Log ---
+//[Points] Player(A): {posA}, Click(B): {posB}
+//[Formula] B - A = Direction: {direction}
+//[Rotation] Current Y: {currentYAngle:F1}°, Target Y: {targetYAngle:F1}°
+//[Delta] Rotate Amount: {Mathf.DeltaAngle(currentYAngle, targetYAngle):F1}°
+//----------------------------");
+
+                // 回転適用
+                transform.rotation = targetRotation;
+
+                // 5. シーンビューに計算に使った矢印を1秒間表示
+                //Debug.DrawRay(posA, direction, Color.red, 1.0f);
+            }
+
+        }
+
     }
 
     private void ApplyGravity()
@@ -57,6 +104,16 @@ public class Player : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
     }
 
+    private void OnDrawGizmos()
+    {
+        // 常に前方を青い線で描画（Z軸方向）
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(transform.position, transform.forward * 2f);
+
+        // 足元に範囲を表示（CharacterControllerの太さの目安）
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, 0.5f);
+    }
 
 
     // オブジェクトが有効なときだけ入力をうけつけるようにする
