@@ -1533,6 +1533,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controller: {fileID: 1688845278}
   speed: 5
+  rotationSpeed: 5
   gravity: -9.81
 --- !u!143 &1688845278
 CharacterController:

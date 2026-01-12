@@ -1,5 +1,5 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {
@@ -43,6 +43,7 @@ public class Player : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
             RotateToMouseCursor();
 
+        // targetRotationの値に応じて、そちらに振り向く
         RotateSmoothly();
 
     }
@@ -83,11 +84,16 @@ public class Player : MonoBehaviour
             else
                 Debug.Log($"<color=yellow>クリック位置は視界外です。</color> (内積: {dot:F2})");
 
+            // 外積で判定をしてみる
+            Vector3 cross = Vector3.Cross(forwardDir, targetDir );
+            string side = cross.y > 0 ? "右" : "左";
+            Debug.Log($"<color=cyan>{side}</color>振り向き (外積のy: {cross.y})");
+
             // 回転の適用
             if (targetDir != Vector3.zero)
             {
-                // 即時振り向き
-                //transform.rotation = Quaternion.LookRotation(targetDir);
+                // 即時振り向きの場合
+                // transform.rotation = Quaternion.LookRotation(targetDir);
                 targetRotation = Quaternion.LookRotation(targetDir);
             }
 
@@ -100,7 +106,7 @@ public class Player : MonoBehaviour
         transform.rotation = Quaternion.Slerp(
             transform.rotation,
             targetRotation,
-            Time.deltaTime * 2f
+            Time.deltaTime * rotationSpeed
         );
     }
 
