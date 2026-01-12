@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using NUnit.Framework.Internal;
+using System;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
@@ -46,9 +48,35 @@ public class Player : MonoBehaviour
         // targetRotationの値に応じて、そちらに振り向く
         RotateSmoothly();
 
+        // 右クリック テスト
+        if (Input.GetMouseButtonDown(1))
+            DebugMouseRay();
+
     }
 
+    private void DebugMouseRay()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit))
+        {
+            Debug.Log($"マウス座標: {Input.mousePosition} / hit.point: {hit.point}");
+
+            Vector3 p = hit.point;
+            float s = .2f;
+
+            // 十字マーカー（赤）
+            Debug.DrawLine(p - Vector3.right * s, p + Vector3.right * s, Color.red, 10f);
+            Debug.DrawLine(p - Vector3.forward * s, p + Vector3.forward * s, Color.red, 10f);
+            Debug.DrawLine(p - Vector3.up * s, p + Vector3.up * s, Color.red, 10f);
+
+            // Ray 自体も可視化（任意）
+            Debug.DrawRay(ray.origin, ray.direction * hit.distance, Color.red, 10f);
+
+        }
+
+    }
 
     private void RotateToMouseCursor()
     {
