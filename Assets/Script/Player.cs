@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class Player : MonoBehaviour
 {
@@ -7,6 +8,8 @@ public class Player : MonoBehaviour
 
     [Header("Movement Settings")]
     public float speed = 5f;
+    public float rotationSpeed = 2f;
+    private Quaternion targetRotation; // クリック先の向き
 
     public PlayerInputSet input;
     private Vector2 moveInput;
@@ -40,7 +43,11 @@ public class Player : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
             RotateToMouseCursor();
 
+        RotateSmoothly();
+
     }
+
+
 
     private void RotateToMouseCursor()
     {
@@ -54,34 +61,47 @@ public class Player : MonoBehaviour
             Vector3 posA = transform.position;
             Vector3 posB = hit.point;
 
-            // ベクトルの引き算
-            Vector3 direction = posB - posA;
-            direction.y = 0; // 一旦縦方向は考慮せず、地面と水平な回転を考慮
+            // B - A
+            // Playerとターゲットへのベクトルを出す
+            // その後正規化することで、ベクトルの大きさは考慮せず、向き成分だけ抽出する
+            Vector3 targetDir = (posB - posA).normalized;
+            targetDir.y = 0; // 縦方向は考慮せず、地面と水平な回転を考慮
 
-            if (direction != Vector3.zero)
+            // Playerの現在向いている、Z軸（正面) ベクトルの取得
+            // 正規化された単位ベクトルの形で返る。
+            Vector3 forwardDir = transform.forward;
+            Debug.Log(forwardDir);
+
+            // クリックした位置が視野角内かどうかの判定をしてみる
+            float dot = Vector3.Dot(forwardDir, targetDir); // 内積計算
+            float viewingAngle = 0.707f; // とりあえず視野角 0.707 = cos45°とする
+            // 内積: dot = |a| |b| cosθ
+            // 正規化しているので|a|と|b|の長さ（ノルム）は 1。
+            // なので、単純に dotとcosθの値を比較すればよい。
+            if (dot > viewingAngle)
+                Debug.Log($"<color=green>クリック位置は視野内です。</color> (内積: {dot:F2})");
+            else
+                Debug.Log($"<color=yellow>クリック位置は視界外です。</color> (内積: {dot:F2})");
+
+            // 回転の適用
+            if (targetDir != Vector3.zero)
             {
-                // 3. 現在の角度と、目標の角度を取得
-                //float currentYAngle = transform.eulerAngles.y; // クォータニオンの値を89.5°など、Euler角として出す
-                Quaternion targetRotation = Quaternion.LookRotation(direction);
-                //float targetYAngle = targetRotation.eulerAngles.y;
-
-                // 4. 数式と結果をログに出力
-//                Debug.Log($@"--- 3D Rotation Math Log ---
-//[Points] Player(A): {posA}, Click(B): {posB}
-//[Formula] B - A = Direction: {direction}
-//[Rotation] Current Y: {currentYAngle:F1}°, Target Y: {targetYAngle:F1}°
-//[Delta] Rotate Amount: {Mathf.DeltaAngle(currentYAngle, targetYAngle):F1}°
-//----------------------------");
-
-                // 回転適用
-                transform.rotation = targetRotation;
-
-                // 5. シーンビューに計算に使った矢印を1秒間表示
-                //Debug.DrawRay(posA, direction, Color.red, 1.0f);
+                // 即時振り向き
+                //transform.rotation = Quaternion.LookRotation(targetDir);
+                targetRotation = Quaternion.LookRotation(targetDir);
             }
 
         }
 
+    }
+
+    private void RotateSmoothly()
+    {
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            targetRotation,
+            Time.deltaTime * 2f
+        );
     }
 
     private void ApplyGravity()
