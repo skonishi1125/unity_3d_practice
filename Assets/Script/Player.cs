@@ -1,7 +1,4 @@
-﻿using NUnit.Framework.Internal;
-using System;
-using UnityEngine;
-using UnityEngine.UIElements;
+﻿using UnityEngine;
 
 public class Player : MonoBehaviour
 {
@@ -15,6 +12,10 @@ public class Player : MonoBehaviour
 
     public PlayerInputSet input;
     private Vector2 moveInput;
+
+    [Header("Movefloor")]
+    [SerializeField] private float movefloorCheckDistance = 1.1f;
+    [SerializeField] private LayerMask whatIsMovingfloor;
 
     [Header("Gravity Settings")]
     public float gravity = -9.81f;
@@ -51,6 +52,9 @@ public class Player : MonoBehaviour
         // 右クリック テスト
         if (Input.GetMouseButtonDown(1))
             DebugMouseRay();
+
+        // 移動床の処理
+        MoveWithFloor();
 
     }
 
@@ -113,7 +117,7 @@ public class Player : MonoBehaviour
                 Debug.Log($"<color=yellow>クリック位置は視界外です。</color> (内積: {dot:F2})");
 
             // 外積で判定をしてみる
-            Vector3 cross = Vector3.Cross(forwardDir, targetDir );
+            Vector3 cross = Vector3.Cross(forwardDir, targetDir);
             string side = cross.y > 0 ? "右" : "左";
             Debug.Log($"<color=cyan>{side}</color>振り向き (外積のy: {cross.y})");
 
@@ -158,15 +162,34 @@ public class Player : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
     }
 
+    private void MoveWithFloor()
+    {
+        RaycastHit hit;
+
+        // 足元が移動床だった場合の処理
+        if (Physics.Raycast(
+            transform.position, Vector3.down, out hit, movefloorCheckDistance, whatIsMovingfloor
+        ))
+        {
+            Rigidbody floorRb = hit.collider.GetComponent<Rigidbody>();
+            if (floorRb != null && floorRb.isKinematic)
+            {
+                // 床の加速量を自身に加える
+                Vector3 floorVelocity = floorRb.linearVelocity;
+                controller.Move(floorVelocity * Time.deltaTime);
+            }
+        }
+    }
+
     private void OnDrawGizmos()
     {
-        // 常に前方を青い線で描画（Z軸方向）
+        // 移動床設置判定
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * 1.1f);
+
+        // Z軸(前方)を青い線で描画
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(transform.position, transform.forward * 2f);
-
-        // 足元に範囲を表示（CharacterControllerの太さの目安）
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, 0.5f);
     }
 
 
