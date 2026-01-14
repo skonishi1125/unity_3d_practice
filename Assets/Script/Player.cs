@@ -4,10 +4,12 @@ public class Player : MonoBehaviour
 {
     [Header("Components")]
     public CharacterController controller;
+    private Animator anim;
 
     [Header("Movement Settings")]
     public float speed = 5f;
     public float rotationSpeed = 2f;
+    private Vector3 moveDirection;
     private Quaternion targetRotation; // クリック先の向き
 
     public PlayerInputSet input;
@@ -26,9 +28,10 @@ public class Player : MonoBehaviour
     {
         input = new PlayerInputSet();
         if (controller == null)
-        {
             controller = GetComponent<CharacterController>();
-        }
+
+        anim = GetComponentInChildren<Animator>();
+
     }
 
     private void Start()
@@ -39,6 +42,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        SetAnimatorParams();
         ApplyGravity();
         Move();
 
@@ -56,6 +60,16 @@ public class Player : MonoBehaviour
         // 移動床の処理
         MoveWithFloor();
 
+    }
+
+    private void SetAnimatorParams()
+    {
+        Debug.Log(moveDirection.normalized);
+        float xVelocity = Vector3.Dot(moveDirection.normalized, transform.right);
+        float zVelocity = Vector3.Dot(moveDirection.normalized, transform.forward);
+
+        anim.SetFloat("xVelocity", xVelocity);
+        anim.SetFloat("zVelocity", zVelocity);
     }
 
     private void DebugMouseRay()
@@ -156,7 +170,7 @@ public class Player : MonoBehaviour
     {
         // 入力(Vector2)を、3D空間の移動方向(Vector3)に変換する
         // 2DのY（上下）を、3DのZ（前後）に入れ替える
-        Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y);
+        moveDirection = new Vector3(moveInput.x, 0, moveInput.y);
         controller.Move(moveDirection * speed * Time.deltaTime);
 
         controller.Move(velocity * Time.deltaTime);
