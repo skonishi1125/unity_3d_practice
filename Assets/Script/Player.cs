@@ -68,8 +68,8 @@ public class Player : MonoBehaviour
         float xVelocity = Vector3.Dot(moveDirection.normalized, transform.right);
         float zVelocity = Vector3.Dot(moveDirection.normalized, transform.forward);
 
-        anim.SetFloat("xVelocity", xVelocity, .5f, Time.deltaTime);
-        anim.SetFloat("zVelocity", zVelocity, .9f, Time.deltaTime);
+        anim.SetFloat("xVelocity", xVelocity, .2f, Time.deltaTime);
+        anim.SetFloat("zVelocity", zVelocity, .2f, Time.deltaTime);
     }
 
     private void DebugMouseRay()
