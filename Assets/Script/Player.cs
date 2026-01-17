@@ -64,7 +64,6 @@ public class Player : MonoBehaviour
 
     private void SetAnimatorParams()
     {
-        Debug.Log(moveDirection.normalized);
         float xVelocity = Vector3.Dot(moveDirection.normalized, transform.right);
         float zVelocity = Vector3.Dot(moveDirection.normalized, transform.forward);
 

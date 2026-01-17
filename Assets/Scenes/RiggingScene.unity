@@ -529,7 +529,7 @@ GameObject:
   - component: {fileID: 230059869}
   - component: {fileID: 230059868}
   - component: {fileID: 230059867}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Target
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2644,9 +2644,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62c3886b43b2dd443a82ce1096cd81bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rig: {fileID: 1235240529}
   headAim: {fileID: 566486390}
-  target: {fileID: 230059865}
+  baseAngle: 90
+  npcLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  searchRadius: 2
 --- !u!1 &2130961311
 GameObject:
   m_ObjectHideFlags: 0
