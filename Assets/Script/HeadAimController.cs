@@ -49,9 +49,9 @@ public class HeadAimController : MonoBehaviour
 
         foreach (var col in closeTargets)
         {
-            Vector3 toTarget = (col.transform.position - transform.position).normalized;
-            float dot = Vector3.Dot(transform.forward, toTarget);
-            float angle = Mathf.Acos(dot) * Mathf.Rad2Deg;
+            Vector3 toTarget = (col.transform.position - transform.position).normalized; // B - A で方向ベクトルだけ取得
+            float dot = Vector3.Dot(transform.forward, toTarget); // 内積。単位ベクトル同士なのでcosθが得られる
+            float angle = Mathf.Acos(dot) * Mathf.Rad2Deg; // cosθを°に変換
 
             if (angle < minAngle) // 視野角内に収まっているか
             {
